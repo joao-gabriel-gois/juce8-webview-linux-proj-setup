@@ -15,13 +15,14 @@ public:
 
     // No need for paint method in webviews
     void resized() override;
-    using Resource = juce::WebBrowserComponent::Resource;
-    std::optional<Resource> getResource(const juce::String& url);
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
+
+    using Resource = juce::WebBrowserComponent::Resource;
+    std::optional<Resource> getResource(const juce::String& url);
 
     juce::WebBrowserComponent webView;
 
