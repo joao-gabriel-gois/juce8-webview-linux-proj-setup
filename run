@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+main() {
+  ls bin/ln_bin* &> /dev/null
+  if [[ $? != 0  ]]; then 
+    cd bin
+    ln -s ../build/plugin/JuceWebViewPlugin_artefacts/Standalone/JuceWebViewPlugin ln_bin
+    ln -s ../build/plugin/JuceWebViewPlugin_artefacts/Debug/Standalone/JuceWebViewPlugin ln_bin_debug
+    cd -
+  fi
+
+  artefact_dir="./build/plugin/JuceWebViewPlugin_artefacts"
+  if [[ ("$1" == "Debug" || "$1" == "debug") && ! -e "$artefact_dir/Debug" ]]; then
+    printf "\033[01;33mCommand ./run '$ $1' called, but Debug version isn't built yet.\033[m\n" 
+    printf "\t\033[30mTo build, run:\n\t  ./build_project -D\n"
+    printf "\n\033[01;36mTrying to run the Release version, instead...\n\n"
+
+  elif [[ "$1" == "Debug" || "$1" == "debug" ]]; then 
+    printf "\n\t\033[01;33mRunning Debug\033[m\n\n"
+    ./bin/ln_bin_debug
+    if [ $? != 0 ]; then
+      printf "\033[01;33mSomething went really really wrong  when calling Debug bin.\033[m\n"
+      printf "\033[05;34mExiting with status code \033[01m7\033[m\n"
+      return 7
+    fi
+    return 0
+
+  elif [[ ! -z "$1" ]]; then
+    printf "\033[02;33mArg: {'$1'} is not recognized as a valid command!\033[m\n"
+  fi
+
+  if [ ! -e "$artefact_dir/Standalone" ]; then
+    printf "\033[01;33mCommand called '$ ./run' called, but Release version isn't built yet.\033[m\n" 
+    printf "\t\033[30mTo build, run:\n\t  ./build_project\n"
+    printf "\t\033[05;34mExiting with status code \033[01m9\033[m\n"
+    return 9
+  fi
+
+  printf "\n  \033[01;34mRunning Release\033[m\n\n"
+  ./bin/ln_bin
+  if [ $? != 0 ]; then
+    printf "\033[01;33mSomething went really really wrong when calling Release bin.\033[m\n"
+    printf "\033[05;34mExiting with status code \033[01m7\033[m\n"
+    return 7
+  fi
+  return 0
+}
+
+main $1
