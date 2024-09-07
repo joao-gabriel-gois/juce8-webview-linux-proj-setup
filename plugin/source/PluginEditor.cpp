@@ -51,7 +51,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
             .withUserScript(R"(console.log("C++ Backend Here: Running before any loading.");)")
             .withInitialisationData("vendor", JUCE_COMPANY_NAME)
             .withInitialisationData("pluginName", JUCE_PRODUCT_NAME)
-            .withInitialisationData("pluginVersion", JUCE_PROJECT_VERSION)} {
+            .withInitialisationData("pluginVersion", JUCE_PROJECT_VERSION)
+            .withNativeFunction(
+              juce::Identifier{"nativeFunction"},
+              [this] (const juce::Array<juce::var>& args,
+                  juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+                nativeFunction(args, std::move(completion));
+              }
+            )
+            .withNativeFunction(
+              juce::Identifier{"log"},
+              [this] (const juce::Array<juce::var>& args,
+                  juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+                log(args, std::move(completion));
+              }
+            )
+            .withEventListener(
+              "exampleInnerEvent2", 
+              [this] (juce::var objFromJS) {
+                labelUpdatedFromJS.setText("exampleInnerEvent2: frontend event happened with value = "
+                  + objFromJS.getProperty("emitCounter", 0).toString(),
+                  juce::dontSendNotification);
+              }
+            ) } {
   juce::ignoreUnused (processorRef);
 
   addAndMakeVisible(webView);
@@ -61,16 +83,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 
   runJSButton.onClick = [this] {
     const juce::String JAVASCRIPT_TO_RUN =
-      "log(\"\\t\\t{Js-Eval called by C++}: Hello World!\", \"\\n\"); Math.sqrt(4);";
+      "log(\"\\n\\t[PluginEditor] evaluateJS:\", \"Hello World! Passing Math.sqrt(4) as result;\"); Math.sqrt(4);";
 
     webView.evaluateJavascript(
       JAVASCRIPT_TO_RUN,
       [](juce::WebBrowserComponent::EvaluationResult result) {
         if (const auto* resultPtr = result.getResult()) {
-          std::cout << "\t(C++): {JS-Eval} | Result: " << resultPtr->toString() << std::endl;
+          std::cout << "\n\t[PluginEditor] evaluateJS.getResult() | Result: " << resultPtr->toString() << std::endl;
         }
         else if (const auto* errorPtr = result.getError()) {
-          std::cout << "\t(C++): {JS-Eval} | Error: " << errorPtr->message << std::endl;
+          std::cout << "\n\t[PluginEditor] evaluateJS.getError() | Error: " << errorPtr->message << std::endl;
         }
       }
     );
@@ -90,6 +112,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
     );
   };
 
+  addAndMakeVisible(labelUpdatedFromJS);
+
+
 
   setResizable(true, true);
   setSize (800, 600);
@@ -105,6 +130,7 @@ void AudioPluginAudioProcessorEditor::resized()
   runJSButton.setBounds(bounds.removeFromTop(50).reduced(5));
   emitJSEventButton.setBounds(bounds.removeFromTop(50).reduced(5));
   emitJSEventWEvalButton.setBounds(bounds.removeFromTop(50).reduced(5));
+  labelUpdatedFromJS.setBounds(bounds.removeFromTop(50).reduced(5));
 }
 
 auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url) -> std::optional<Resource> {
@@ -120,5 +146,36 @@ auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url) -> st
 
   return std::nullopt;
 }
+
+void AudioPluginAudioProcessorEditor::nativeFunction(const juce::Array<juce::var>& args,
+                      juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+
+  juce::String concatenatedArgs;
+
+  for (const auto& arg : args) {
+    concatenatedArgs += arg.toString();
+  }
+
+  labelUpdatedFromJS.setText("Native Function called with args: " + concatenatedArgs,
+    juce::dontSendNotification);
+
+  completion("nativeFunction Callback: All Ok!");
+}
+
+void AudioPluginAudioProcessorEditor::log(const juce::Array<juce::var>& args,
+                      juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+  
+  juce::String concatenatedArgs;
+  for (int i = 0; i < args.size(); ++i) {
+    concatenatedArgs += args[i].toString();
+    if (i < args.size() - 1) {
+      concatenatedArgs += " ";
+    }
+  }
+  
+  std::cout << concatenatedArgs << std::endl;
+  completion(true);
+}
+
 
 }

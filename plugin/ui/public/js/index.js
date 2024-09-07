@@ -1,7 +1,12 @@
 // Uncommenting line bellow is breaking the whole js script
-// import * as Juce from './juce/index.js';
+import { getNativeFunction } from './juce/javascript/index.js';
 
-log('test!');
+
+const nativeFunction = getNativeFunction('nativeFunction');
+const log = getNativeFunction('log');
+// const log = log2;
+
+log('[index.js] Starting JS Script!', 'Running...');
 window.log = log;
 
 const btn = document.createElement('button');
@@ -9,37 +14,55 @@ btn.innerText = "Test";
 btn.addEventListener('click', e => {
   setTimeout(() => e.target.style.backgroundColor = "red", 0);
   setTimeout(() => e.target.style.backgroundColor = "white", 2000);
-  log('\t\tjs element click,', 'js log\n');
+  log('[index.js]\t js element click,', 'js log2');
 });
 document.body.appendChild(btn);
 
+// Main
+document.addEventListener('DOMContentLoaded', () => {
+  const {
+    vendor,
+    pluginName,
+    pluginVersion
+  } = window.__JUCE__.initialisationData;
+
+  const $id = (id) => document.getElementById(id);
+  $id('vendor').innerText = vendor;
+  $id('pluginName').innerText = pluginName;
+  $id('pluginVersion').innerText = pluginVersion;
+
+  const fnButton = $id('nativeFnButton');
+  fnButton.addEventListener('click', () => {
+    nativeFunction("one ", 2, null).then(completionResult => {
+      log(completionResult);
+    });
+  });
+
+  const evButton = $id('emitEvButton');
+  let emitCounter = 0;
+  evButton.addEventListener('click', () => {
+    emitCounter++;
+    window.__JUCE__.backend.emitEvent('exampleInnerEvent2', {
+      emitCounter,
+    });
+  });
+
+});
+
 window.__JUCE__.backend.addEventListener("exampleEvent", (objFromCppBackend) => {
-  log("Dispacthing \"exampleEvent\" from C++ with value coming from backend =", objFromCppBackend);
+  log("[backend-event from emitEventIfBrowserIsVisible]\n\t",
+    "\"exampleEvent\" emited from JUCE Backend, getting value =", 
+    objFromCppBackend);
 });
 
 window.addEventListener('exampleInnerEvent', () => {
-  log("Receiving dispatched \"exampleInnerEvent\" from cpp side js eval!");
+  log("[client-event from js eval in cpp]\n\t\"exampleInnerEvent\"",
+    "dispatched in client side from cpp through js eval!");
 });
 
-const {
-  vendor,
-  pluginName,
-  pluginVersion
-} = window.__JUCE__.initialisationData;
-
-const $id = (id) => document.getElementById(id);
-$id('vendor').innerText = vendor;
-$id('pluginName').innerText = pluginName;
-$id('pluginVersion').innerText = pluginVersion;
-
-
-function log(...args) {
-  const message = args.join(' ');
-  const encodedMessage = encodeURIComponent(message);
-  window.location.href = `external://log/${encodedMessage}`;
-}
 
 // function log2(...args) {
 //   const message = args.join(' ');
-  
+//   const encodedMessage = encodeURIComponent(message);
+//   window.location.href = `external://log/${encodedMessage}`;
 // }

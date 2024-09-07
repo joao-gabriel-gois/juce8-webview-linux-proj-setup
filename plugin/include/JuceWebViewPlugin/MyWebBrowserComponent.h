@@ -1,7 +1,26 @@
 #pragma once
 
-#include "juce_gui_extra/juce_gui_extra.h"
+/*
+  Not in use anymore. We are assigning a native logging function instead
+  of this approach.
+  In order to use it, check comments bellow:
+*/
+// You need to change JUCE's WebBrowserComponent to this class
+// in case of using the other log fn approach in plugin/ui/public/index.js
+// toggle comment/uncommend example lines bellow in index.js:
+/*
+  const nativeFunction = getNativeFunction('nativeFunction');
+  const log = getNativeFunction('log');
+  // const log = log2;
 
+  // // (...)
+
+  // function log2(...args) {
+  //   const message = args.join(' ');
+  //   const encodedMessage = encodeURIComponent(message);
+  //   window.location.href = `external://log/${encodedMessage}`;
+  // }
+*/
 class MyWebBrowserComponent : public juce::WebBrowserComponent
 {
 public:
