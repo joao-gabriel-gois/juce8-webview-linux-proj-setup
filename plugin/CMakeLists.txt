@@ -10,6 +10,18 @@ juce_add_plugin(JuceWebViewPlugin
   FORMATS AU VST3 Standalone
 )
 
+get_target_property(COMPANY_NAME JuceWebViewPlugin JUCE_COMPANY_NAME)
+get_target_property(PRODUCT_NAME JuceWebViewPlugin JUCE_PRODUCT_NAME)
+# target_compile_definitions(JuceWebViewPlugin PRIVATE
+#   JUCE_COMPANY_NAME="${COMPANY_NAME}"
+#   JUCE_PRODUCT_NAME="${PRODUCT_NAME}"
+#   JUCE_PROJECT_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(JuceWebViewPlugin   PRIVATE
+  JUCE_COMPANY_NAME="${COMPANY_NAME}"
+  JUCE_PRODUCT_NAME="${PRODUCT_NAME}"
+  JUCE_PROJECT_VERSION="${PROJECT_VERSION}"
+)
+
 target_sources(JuceWebViewPlugin
   PRIVATE
     source/PluginEditor.cpp

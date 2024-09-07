@@ -2,10 +2,27 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
-    <script type="module" src="js/index.js"></script>
     <title>JUCE 8 WebView Plugin Tutorial</title>
   </head>
   <body>
     <h1>Hello, World!</h1>
+    <table id="productInfo">
+      <thead>
+        <tr>
+          <td><strong>Property</strong></td>
+          <td><strong>Value</strong></td>
+        </tr>
+      </thead>
+      <tr>
+        <td>Vendor</td><td id="vendor"></td>
+      </tr>
+      <tr>
+        <td>Plugin Name</td><td id="pluginName"></td>
+      </tr>
+      <tr>
+        <td>Plugin Version</td><td id="pluginVersion"></td>
+      </tr>
+    </table>
+    <script type="module" src="js/index.js"></script>
   </body>
 </html>

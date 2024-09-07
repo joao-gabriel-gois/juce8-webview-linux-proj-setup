@@ -11,25 +11,28 @@ namespace webview_plugin {
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
 {
 public:
-    explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
-    ~AudioPluginAudioProcessorEditor() override;
+  explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
+  ~AudioPluginAudioProcessorEditor() override;
 
-    // No need for paint method in webviews
-    void resized() override;
+  // No need for paint method in webviews
+  void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    AudioPluginAudioProcessor& processorRef;
+  // This reference is provided as a quick way for your editor to
+  // access the processor object that created it.
+  AudioPluginAudioProcessor& processorRef;
 
-    using Resource = juce::WebBrowserComponent::Resource;
-    std::optional<Resource> getResource(const juce::String& url);
+  using Resource = juce::WebBrowserComponent::Resource;
+  std::optional<Resource> getResource(const juce::String& url);
 
-    juce::TextButton runJSButton{"Run some JavaScript"};
+  juce::TextButton runJSButton{"Run some JavaScript"};
+  juce::TextButton emitJSEventButton{"Emit some JavaScript Event from Cpp"};
+  juce::TextButton emitJSEventWEvalButton{"Emit some JavaScript Event from JS Eval"};
 
-    // juce::WebBrowserComponent webView;
-    MyWebBrowserComponent webView;
+  // juce::WebBrowserComponent webView;
+  MyWebBrowserComponent webView;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
+
 }
