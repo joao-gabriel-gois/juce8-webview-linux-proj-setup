@@ -22,7 +22,7 @@ juce_add_plugin(JuceWebViewPlugin
 </pre>
 
 #### Build Script
-You can build the project by running `./build_it`. To build the debbuging version you can add `--debug` or `-D` flags.
+Update JUCE Lib dependency: `git submodule update --init --recursive`. After that, you can build the project by running `./build_it`. To build the debbuging version you can add `--debug` or `-D` flags.
 
 #### Runnign the Plugin
 To easily open the plugin, run `./run`. To run the debbuging version you can add `--debug` or `-D` flags.

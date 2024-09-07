@@ -56,13 +56,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(runJSButton);
 
   runJSButton.onClick = [this] {
-    const juce::String JAVASCRIPT_TO_RUN = "window.log(\"\t{Js-Eval} Hello, World!\");Math.sqrt(4);";  // Simple JS to evaluate
+    const juce::String JAVASCRIPT_TO_RUN =
+      "log(\"\\t\\t{Js-Eval called by C++}: Hello, World!\", \"\\n\\t\\t\\t\\t\\t_______\"); Math.sqrt(4);";
 
     webView.evaluateJavascript(
       JAVASCRIPT_TO_RUN,
       [](juce::WebBrowserComponent::EvaluationResult result) {
         if (const auto* resultPtr = result.getResult()) {
-          std::cout << "\t(C++): {JS-Eval} | Result: " << resultPtr->toString() << std::endl;
+          std::cout << "\n\t(C++): {JS-Eval} | Result: " << resultPtr->toString() << std::endl;
         }
         else if (const auto* errorPtr = result.getError()) {
           std::cout << "\t(C++): {JS-Eval} | Error: " << errorPtr->message << std::endl;

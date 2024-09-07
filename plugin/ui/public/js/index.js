@@ -3,20 +3,20 @@
 log('test!');
 window.log = log;
 
-const p = document.createElement('p');
+const btn = document.createElement('button');
 // p.innerText = `${window.__JUCE__.backend}`;
-p.innerText = "Test";
+btn.innerText = "Test";
 
-// p.addEventListener('click', () => log("Click"));
-document.body.appendChild(p);
-p.addEventListener('click', e => {
+// btn.addEventListener('click', () => log("Click"));
+document.body.appendChild(btn);
+btn.addEventListener('click', e => {
   setTimeout(() => e.target.style.backgroundColor = "red", 0);
   setTimeout(() => e.target.style.backgroundColor = "white", 2000);
-  log('click', e.target.tagName);
+  log('\n\t\tjs element click,', 'js log');
 });
 
-function log(argument) {
-  // Encode the argument if necessary and invoke the external log event
-  const encodedMessage = encodeURIComponent(argument);
+function log(...args) {
+  const message = args.join(' ');
+  const encodedMessage = encodeURIComponent(message);
   window.location.href = `external://log/${encodedMessage}`;
 }
