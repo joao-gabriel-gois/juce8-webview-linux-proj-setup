@@ -8,13 +8,29 @@ main() {
     cd -
   fi
 
+  flags=()
+  args=()
+  for arg in "$@"; do
+    if [[ "$arg" == --* || "$arg" == -* ]]; then
+        flags+=("$arg")
+    else
+        args+=("$arg")
+    fi
+  done
+
+
   artefact_dir="./build/plugin/JuceWebViewPlugin_artefacts"
-  if [[ ("$1" == "Debug" || "$1" == "debug") && ! -e "$artefact_dir/Debug" ]]; then
+  if [[ (" ${flags[@]} " =~ " --Debug "
+          || " ${flags[@]} " =~ " --debug "
+          || " ${flags[@]} " =~ " -D ") && ! -e "$artefact_dir/Debug" ]]; then
+
     printf "\033[01;33mCommand ./run '$ $1' called, but Debug version isn't built yet.\033[m\n" 
     printf "\t\033[30mTo build, run:\n\t  ./build_project -D\n"
     printf "\n\033[01;36mTrying to run the Release version, instead...\n\n"
 
-  elif [[ "$1" == "Debug" || "$1" == "debug" ]]; then 
+  elif [[ " ${flags[@]} " =~ " --Debug "
+          || " ${flags[@]} " =~ " --debug "
+          || " ${flags[@]} " =~ " -D " ]]; then 
     printf "\n\t\033[01;33mRunning Debug\033[m\n\n"
     ./bin/ln_bin_debug
     if [ $? != 0 ]; then
@@ -23,9 +39,6 @@ main() {
       return 7
     fi
     return 0
-
-  elif [[ ! -z "$1" ]]; then
-    printf "\033[02;33mArg: {'$1'} is not recognized as a valid command!\033[m\n"
   fi
 
   if [ ! -e "$artefact_dir/Standalone" ]; then

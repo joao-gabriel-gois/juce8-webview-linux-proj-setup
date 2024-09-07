@@ -1,8 +1,9 @@
 #pragma once
 
 #include "JuceWebViewPlugin/PluginProcessor.h"
+#include "MyWebBrowserComponent.h"
 // using  <lib/lib.h> notation in linux is not working
-#include "juce_gui_extra/juce_gui_extra.h"
+// #include "juce_gui_extra/juce_gui_extra.h"
 #include <optional>
 
 
@@ -24,7 +25,10 @@ private:
     using Resource = juce::WebBrowserComponent::Resource;
     std::optional<Resource> getResource(const juce::String& url);
 
-    juce::WebBrowserComponent webView;
+    juce::TextButton runJSButton{"Run some JavaScript"};
+
+    // juce::WebBrowserComponent webView;
+    MyWebBrowserComponent webView;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

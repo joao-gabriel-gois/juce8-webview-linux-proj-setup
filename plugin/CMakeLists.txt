@@ -11,7 +11,9 @@ juce_add_plugin(JuceWebViewPlugin
 )
 
 target_sources(JuceWebViewPlugin
-  PRIVATE src/PluginEditor.cpp src/PluginProcessor.cpp
+  PRIVATE
+    source/PluginEditor.cpp
+    source/PluginProcessor.cpp
 )
 
 target_include_directories(JuceWebViewPlugin PRIVATE include)
@@ -19,7 +21,6 @@ target_include_directories(JuceWebViewPlugin PRIVATE include)
 target_link_libraries(JuceWebViewPlugin
   PRIVATE
     juce::juce_audio_utils
-    # juce::juce_gui_extra
   PUBLIC
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
@@ -31,3 +32,9 @@ target_compile_definitions(JuceWebViewPlugin
     JUCE_WEB_BROWSER=1
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0)
+
+file(
+  COPY
+    "${CMAKE_CURRENT_SOURCE_DIR}/../lib/juce/modules/juce_gui_extra/native/javascript"
+  DESTINATION
+    "${CMAKE_CURRENT_SOURCE_DIR}/ui/public/js/juce/")
