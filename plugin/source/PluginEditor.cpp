@@ -38,7 +38,10 @@ namespace {
     jassertfalse;
     return "";
   }
+
+  constexpr auto LOCAL_DEV_SERVER_ADDRESS = "http://127.0.0.1:8080";
 }
+// namespace
 
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   AudioPluginAudioProcessor& p)
@@ -46,7 +49,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
     processorRef(p),
     webView{juce::WebBrowserComponent::Options{}
             .withResourceProvider(
-                [this](const auto& url) { return getResource(url); } )
+                [this](const auto& url) { return getResource(url); },
+                juce::URL{LOCAL_DEV_SERVER_ADDRESS}.getOrigin())
             .withNativeIntegrationEnabled()
             .withUserScript(R"(console.log("C++ Backend Here: Running before any loading.");)")
             .withInitialisationData("vendor", JUCE_COMPANY_NAME)
@@ -77,10 +81,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   juce::ignoreUnused (processorRef);
 
   addAndMakeVisible(webView);
-  webView.goToURL(webView.getResourceProviderRoot());
+  
+  // Staticly serving the UI
+  // webView.goToURL(webView.getResourceProviderRoot());
+
+  // Serving UI through a server (npx http-server)
+  webView.goToURL(LOCAL_DEV_SERVER_ADDRESS);
 
   addAndMakeVisible(runJSButton);
-
   runJSButton.onClick = [this] {
     const juce::String JAVASCRIPT_TO_RUN =
       "log(\"\\n\\t[PluginEditor] evaluateJS:\", \"Hello World! Passing Math.sqrt(4) as result;\"); Math.sqrt(4);";
@@ -99,7 +107,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   };
 
   addAndMakeVisible(emitJSEventButton);
-  
   emitJSEventButton.onClick = [this] {
     static const juce::Identifier EVENT_ID("exampleEvent");
     webView.emitEventIfBrowserIsVisible(EVENT_ID, 42.0);
@@ -114,13 +121,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 
   addAndMakeVisible(labelUpdatedFromJS);
 
-
-
   setResizable(true, true);
   setSize (800, 600);
+
+  startTimer(60);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
+
+
 
 void AudioPluginAudioProcessorEditor::resized()
 {
@@ -133,10 +142,33 @@ void AudioPluginAudioProcessorEditor::resized()
   labelUpdatedFromJS.setBounds(bounds.removeFromTop(50).reduced(5));
 }
 
+void AudioPluginAudioProcessorEditor::timerCallback() {
+  webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+}
+
 auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url) -> std::optional<Resource> {
   static const auto resourceFileRoot = juce::File{R"(/home/pudou/Projects/wize-mice/juce8-webview-tutorial/plugin/ui/public)"};
 
   const auto resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+
+  if (resourceToRetrieve == "outputLevel.json") {
+    juce::DynamicObject::Ptr data{new juce::DynamicObject{}};
+    data->setProperty("left", processorRef.outputLevelLeft.load());
+    const auto string = juce::JSON::toString(data.get());
+    juce::MemoryInputStream stream{string.getCharPointer(),
+                                  string.getNumBytesAsUTF8(), false};
+    return Resource{streamToVector(stream), juce::String{"application/json"}};
+  }
+
+  if (resourceToRetrieve == "data.json") {
+    juce::DynamicObject::Ptr data{new juce::DynamicObject{}};
+    data->setProperty("sampleProperty", 30.0);
+    const auto string = juce::JSON::toString(data.get());
+    juce::MemoryInputStream stream{string.getCharPointer(),
+                                  string.getNumBytesAsUTF8(), false};
+    return Resource{streamToVector(stream), juce::String{"application/json"}};
+  }
+
   const auto resource = resourceFileRoot.getChildFile(resourceToRetrieve).createInputStream();
 
   if (resource) {

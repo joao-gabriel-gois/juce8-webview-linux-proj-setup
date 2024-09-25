@@ -1,16 +1,15 @@
 #pragma once
-
+// using  <lib/lib.h> notation in linux is not working, we are using "lib/lib.h" instead.
 #include "JuceWebViewPlugin/PluginProcessor.h"
-// using  <lib/lib.h> notation in linux is not working
 #include "juce_gui_extra/juce_gui_extra.h"
 // Switch between above one and bellow one in case of need
 // #include "MyWebBrowserComponent.h"
-
 #include <optional>
 
 
 namespace webview_plugin {
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
+class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
+                                              private juce::Timer
 {
 public:
   explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
@@ -18,6 +17,7 @@ public:
 
   // No need for paint method in webviews
   void resized() override;
+  void timerCallback() override;
 
 private:
   using Resource = juce::WebBrowserComponent::Resource;

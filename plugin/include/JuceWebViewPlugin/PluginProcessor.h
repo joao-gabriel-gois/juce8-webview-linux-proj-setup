@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 
 namespace webview_plugin {
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -42,8 +43,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    std::atomic<float> outputLevelLeft;
+
 private:
-    //==============================================================================
+    juce::dsp::BallisticsFilter<float> envelopeFollower;
+    juce::AudioBuffer<float> envelopeFollowerOutputBuffer;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
 }

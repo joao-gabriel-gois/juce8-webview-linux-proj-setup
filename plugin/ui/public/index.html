@@ -2,6 +2,8 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8">
+    <script src="https://cdn.plot.ly/plotly-2.33.0.min.js" charset="utf-8"></script>
+    <script type="module" src="js/index.js"></script>
     <title>JUCE 8 WebView Plugin Tutorial</title>
   </head>
   <body>
@@ -25,6 +27,9 @@
     </table>
     <button id="nativeFnButton">Call a C++ function</button>
     <button id="emitEvButton">Emit an Event in JS to C++</button>
-    <script type="module" src="js/index.js"></script>
+    
+    <div id="outputLevelPlot"></div>
+
+    
   </body>
 </html>
