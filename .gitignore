@@ -1,4 +1,7 @@
-lib/juce/
+lib/juce/*
+lib/juce/**/*
 plugin/ui/public/js/node_modules/
-build/
-bin/
+build/*
+build/**/*
+bin/*
+bin/**/*
